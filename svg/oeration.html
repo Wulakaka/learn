@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="12cm" height="5.25cm" viewBox="0 0 1200 400" version="1.1">
+    <title>Example arcs01 - arc commands in path data</title>
+    <desc>Picture of a pie chart with two pie wedges and
+        a picture of a line with arc blips
+    </desc>
+    <rect x="1" y="1" width="1198" height="398" fill="none" stroke="blue" stroke-width="1"/>
+
+    <path d="M300,200 h-150 a150,150 0 1,0 150,-150 z" fill="red" stroke="blue" stroke-width="5"/>
+    <path d="M275,175 v-150 a150,150 0 0,0 -150,150 z" fill="yellow" stroke="blue" stroke-width="5"/>
+
+    <path d="
+    M600,350 l 50,-25
+    a25,25 -30 0,1 50,-25 l 50,-25             a25,50 -30 0,1 50,-25 l 50,-25             a25,75 -30 0,1 50,-25 l 50,-25             a25,100 -30 0,1 50,-25 l 50,-25"
+          fill="none" stroke="red" stroke-width="5"/>
+</svg>
+<svg width="12cm" height="4cm" viewBox="0 0 1200 400"
+     xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <desc>Example polyline01 - increasingly larger bars</desc>
+
+    <!-- Show outline of viewport using 'rect' element -->
+    <rect x="1" y="1" width="1198" height="398"
+          fill="none" stroke="blue" stroke-width="2" />
+
+    <polyline fill="none" stroke="blue" stroke-width="10"
+              points="50,375
+                    150,375 150,325 250,325 250,375
+                    350,375 350,250 450,250 450,375
+                    550,375 550,175 650,175 650,375
+                    750,375 750,100 850,100 850,375
+                    950,375 950,25 1050,25 1050,375
+                    1150,375" />
+</svg>
+
+<svg xmlns="http://www.w3.org/2000/svg" width="12cm" height="5.25cm" viewBox="0 0 100 100">
+    <title>V</title>
+    <polyline fill="none" stroke="blue" stroke-width="1"
+              points="0,0 50,100 100,0" />
+</svg>
+</body>
+</html>

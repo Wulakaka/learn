@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chapter 3</title>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="400px" height="650px"
+     xml:lang="en"
+     viewBox="0 0 7 21" preserveAspectRatio="none">
+    <title>SVG Color Keywords</title>
+    <script><![CDATA[
+    /* script goes here */
+    (function () {
+        var svgNS = "http://www.w3.org/2000/svg";
+        var xlinkNS = "http://www.w3.org/1999/xlink";
+        var svg = document.documentElement;
+        var dataFileURL = "color-names.csv"
+        var request = new XMLHttpRequest();
+        request.addEventListener("load", draw);
+        request.overrideMimeType("text/csv");
+        request.open("GET", dataFileURL);
+        request.send();
+
+        function draw() {
+            var w = 7; //swatches per row
+            var colors = request.responseText.split("\n");
+            for (var i = 0, n = colors.length; i < n; i++) {
+                var c = colors[i].trim();
+                var swatch = document.createElementNS(svgNS, "rect");
+                swatch.setAttribute("width", 1);
+                swatch.setAttribute("height", 1);
+
+                swatch.setAttribute("x", i % w);
+                swatch.setAttribute("y", Math.floor(i / w));
+                swatch.style.setProperty("fill", c);
+                var tip = document.createElementNS(svgNS, "title");
+                tip.textContent = c;
+                swatch.insertBefore(tip, null);
+                svg.insertBefore(swatch, null);
+            }
+        }
+    })();
+    ]]>
+    </script>
+</svg>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="400px" height="400px" viewBox="0 0 200 200">
+    <title>HSL Color Wheel</title>
+    <defs>
+        <circle id="center" r="1.5" fill="black"/>
+        <path id="inner" transform="rotate(-15)"
+              d="M0,0L15,0A15,15 0 0 1 12.99,7.5 L0,0Z"/>
+        <path id="middle" transform="rotate(-15)"
+              d="M15,0L28,0A28,28 0 0 1 24.25,14
+L12.99,7.5 A15,15 0 0 0 15,0Z"/>
+        <path id="outer" transform="rotate(-15)"
+              d="M28,0L40,0A40,40 0 0 1 34.64,20
+L24.25,14 A28,28 0 0 0 28,0Z"/>
+        <circle id="edge" r="39" fill="none"
+                stroke="white" stroke-width="2"/>
+    </defs>
+    <style type="text/css">
+        text {
+            text-anchor: middle;
+            font-size: 8px;
+            font-family: sans-serif;
+        }
+    </style>
+    <rect fill="#888" width="100%" height="100%"/>
+    <svg class="wheel" width="100" height="100" x="0" y="0"
+         viewBox="-40,-40 80,80">
+        <use xlink:href="#center"/>
+        <use xlink:href="#edge"/>
+    </svg>
+    <svg class="wheel" width="100" height="100" x="100" y="0"
+         viewBox="-40,-40 80,80">
+        <use xlink:href="#center"/>
+        <use xlink:href="#edge"/>
+    </svg>
+    <svg class="wheel" width="100" height="100" x="100" y="0"
+         viewBox="-40,-40 80,80">
+        <use xlink:href="#center"/>
+        <use xlink:href="#edge"/>
+    </svg>
+    <svg class="wheel" width="100" height="100" x="0" y="100"
+         viewBox="-40,-40 80,80">
+        <use xlink:href="#center"/>
+        <use xlink:href="#edge"/>
+    </svg>
+    <script><![CDATA[
+    /* script goes here */
+    (function () {
+        var svgNS = "http://www.w3.org/2000/svg";
+        var xlinkNS = "http://www.w3.org/1999/xlink";
+        var wedge = 30; //angle span of each pie piece, in degrees
+        var saturation = ["100%", "75%", "50%", "25%"];
+        var lightness = {outer: "75%", middle: "50%", inner: "25%"};
+        var wheels = document.getElementsByClassName("wheel");
+        var h, s, l, w, p, u;
+        for (var i = 0, n = wheels.length; i < n; i++) {
+            w = wheels[i];
+            s = saturation[i];
+            for (h = 0; h < 360; h += wedge) {
+                for (p in lightness) {
+                    l = lightness[p];
+                    u = document.createElementNS(svgNS, "use");
+                    u.setAttributeNS(xlinkNS, "href", "#" + p);
+                    u.setAttribute("transform", "rotate(" + h + ")");
+                    u.style.setProperty("fill", "hsl(" + [h, s, l] + ")");
+                    w.insertBefore(u, w.firstChild);
+                }
+            }
+            var t = document.createElementNS(svgNS, "text");
+            t.textContent = "s = " + s;
+            t.setAttribute("y", "35");
+            w.insertBefore(t, null);
+        }
+    })();
+    ]]> </script>
+</svg>
+</body>
+</html>
