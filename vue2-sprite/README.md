@@ -1,5 +1,6 @@
 # sprite-vue
-
+## Description
+### 测试sprite在vue中的使用，使用官方的sprite-vue
 ## Project setup
 ```
 npm install
