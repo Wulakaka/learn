@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="div">
     <scene
       id="container"
       :viewport="[300, 300]"
@@ -123,6 +123,23 @@ export default {
         },
       ],
     };
+  },
+  beforeCreate() {
+    console.log("beforeCreate");
+    console.log(this.idx);
+  },
+  created() {
+    console.log("created");
+    console.log(this.idx);
+    Promise.resolve("resolve").then((res) => {
+      console.log(res);
+    });
+  },
+  beforeMount() {
+    console.log("beforeMount", this.$refs.div);
+  },
+  mounted() {
+    console.log("mounted", this.$refs.div);
   },
   methods: {},
 };
