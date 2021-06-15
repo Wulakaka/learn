@@ -121,6 +121,18 @@ export default {
           d: "M7,2 A5,5 0 0,0 7,12 A5,5 0 0,0 7,2M0,7H14",
           fillColor: "transparent",
         },
+        {
+          pos: [300, 300],
+          text: "C",
+          d: "M15,6 A5,6 0 1 0 15,10",
+          fillColor: "transparent",
+        },
+        {
+          pos: [400, 300],
+          text: "A",
+          d: "M2,16 L8,0 L14,16 M4,9 L12,9",
+          fillColor: "transparent",
+        },
       ],
     };
   },
