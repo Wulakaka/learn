@@ -1,22 +1,34 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 module.exports = {
-    mode: 'development',
-    entry: {
-        index: './src/index.js',
-    },
+    mode: 'production',
+    entry: './src/index.js',
     devtool: 'inline-source-map',
     devServer: {
         contentBase: './dist'
     },
     plugins: [
         new HtmlWebpackPlugin({
-            title:'代码分离'
+            title:'Caching'
         })
     ],
     output: {
-        filename: '[name].bundle.js',
+        filename: '[name].[contenthash].js',
         path: path.resolve(__dirname, 'dist'),
         clean: true
     },
+    optimization: {
+        // 使构建过程中vendor不更改hash值
+        moduleIds: 'deterministic',
+        runtimeChunk: 'single',
+        splitChunks: {
+            cacheGroups: {
+                vendor:{
+                    test: /[\\/]node_modules[\\/]/,
+                    name:'vendors',
+                    chunks: "all"
+                }
+            }
+        }
+    }
 }
