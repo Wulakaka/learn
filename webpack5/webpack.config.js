@@ -1,9 +1,10 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 module.exports = {
+    mode: 'development',
     entry: {
-        app: './src/index.js',
-        print: './src/print.js'
+        index: './src/index.js',
+        another: './src/another-module.js'
     },
     devtool: 'inline-source-map',
     devServer: {
@@ -11,7 +12,7 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            title:'Output Management'
+            title:'代码分离'
         })
     ],
     output: {
@@ -19,5 +20,4 @@ module.exports = {
         path: path.resolve(__dirname, 'dist'),
         clean: true
     },
-    mode: 'production'
 }
