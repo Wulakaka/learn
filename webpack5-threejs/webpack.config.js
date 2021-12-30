@@ -11,12 +11,20 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             title: 'Output Management',
-            template: "./index.html" // 使用模板
+            // template: "./index.html" // 使用模板
         })
     ],
     output: {
         filename: "[name].bundle.js",
         path: path.resolve(__dirname, 'dist'),
-        clean: true,  // 打包时清理目录
+        clean: true  // 打包时清理目录
+    },
+    module: {
+        rules: [
+            {
+                test: /.css$/i,
+                use: ['style-loader', 'css-loader']
+            }
+        ]
     }
 }
