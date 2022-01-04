@@ -1,6 +1,7 @@
 import './style.css'
 
 import * as THREE from 'three';
+import removeDuplicates from "./leetcode/removeDuplicates";
 
 function init() {
     console.log('using Three.js version: ' + THREE.REVISION)
@@ -44,13 +45,13 @@ function init() {
     cube.position.set(-4, 3, 0)
     scene.add(cube)
 
-    const sphereGeometry = new THREE.SphereGeometry(4,20,20)
+    const sphereGeometry = new THREE.SphereGeometry(4, 20, 20)
     const sphereMaterial = new THREE.MeshBasicMaterial({
         color: 0x7777FF,
         wireframe: true
     })
     const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
-    sphere.position.set(20,4,2)
+    sphere.position.set(20, 4, 2)
     scene.add(sphere)
     // 设置相机位置
     camera.position.set(-30, 40, 30)
