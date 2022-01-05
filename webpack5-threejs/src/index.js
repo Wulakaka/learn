@@ -3,6 +3,7 @@ import "./style.css";
 import * as THREE from "three";
 
 import Stats from "three/examples/jsm/libs/stats.module";
+import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js";
 
 import * as dat from "../libs/util/dat.gui";
 
@@ -52,10 +53,15 @@ function init() {
 
   document.body.appendChild(renderer.domElement);
 
+  const trackballControls = initTrackballControls(camera, renderer);
+  const clock = new THREE.Clock();
+
   let step = 0;
   renderScene();
 
   function renderScene() {
+    trackballControls.update(clock.getDelta());
+
     // 更新统计
     stats.update();
     // 旋转立方体
@@ -162,4 +168,25 @@ function createSpotLight(scene) {
   spotLight.shadow.camera.near = 40;
 
   scene.add(spotLight);
+}
+
+/**
+ * Initialize trackball controls to control the scene
+ *
+ * @param {THREE.Camera} camera
+ * @param {THREE.Renderer} renderer
+ */
+function initTrackballControls(camera, renderer) {
+  var trackballControls = new TrackballControls(camera, renderer.domElement);
+
+  trackballControls.rotateSpeed = 10.0;
+  trackballControls.zoomSpeed = 1.2;
+  trackballControls.panSpeed = 0.8;
+  trackballControls.noZoom = false;
+  trackballControls.noPan = false;
+  trackballControls.staticMoving = true;
+  trackballControls.dynamicDampingFactor = 0.3;
+  trackballControls.keys = [65, 83, 68];
+
+  return trackballControls;
 }
