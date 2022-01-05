@@ -18,7 +18,9 @@ function init() {
   // 线性增长雾化效果
   // scene.fog = new THREE.Fog(0xffffff, 0.015, 100);
   // 指数增长雾化效果
-  scene.fog = new THREE.FogExp2(0xffffff, 0.01);
+  // scene.fog = new THREE.FogExp2(0xffffff, 0.01);
+  // 覆盖所有材质
+  // scene.overrideMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
 
   // 渲染器，还有其他种类的渲染器
   const renderer = new THREE.WebGL1Renderer();
