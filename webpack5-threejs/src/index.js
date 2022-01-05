@@ -2,8 +2,12 @@ import "./style.css";
 
 import * as THREE from "three";
 
+import Stats from "three/examples/jsm/libs/stats.module";
+
 function init() {
   console.log("using Three.js version: " + THREE.REVISION);
+
+  const stats = initStats();
 
   // 创建场景
   const scene = new THREE.Scene();
@@ -36,7 +40,23 @@ function init() {
   createSpotLight(scene);
 
   document.body.appendChild(renderer.domElement);
-  renderer.render(scene, camera);
+  renderScene();
+
+  function renderScene() {
+    stats.update();
+    requestAnimationFrame(renderScene);
+    renderer.render(scene, camera);
+  }
+}
+
+function initStats(type) {
+  const panelType =
+    typeof type !== "undefined" && type && !isNaN(type) ? parseInt(type) : 0;
+  const stats = new Stats();
+
+  stats.showPanel(panelType);
+  document.body.appendChild(stats.dom);
+  return stats;
 }
 
 init();
