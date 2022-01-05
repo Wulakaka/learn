@@ -7,13 +7,6 @@ function init() {
 
   // 创建场景
   const scene = new THREE.Scene();
-  // 创建相机 视场，宽高比，近面，远面
-  const camera = new THREE.PerspectiveCamera(
-    45,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
 
   // 渲染器，还有其他种类的渲染器
   const renderer = new THREE.WebGL1Renderer();
@@ -24,11 +17,35 @@ function init() {
   // 默认情况下不会渲染阴影，渲染阴影会消耗大量资源
   renderer.shadowMap.enabled = true;
 
-  // 设置轴粗细为20像素
-  const axes = new THREE.AxesHelper(20);
-  scene.add(axes);
+  // 创建相机 视场，宽高比，近面，远面
+  const camera = new THREE.PerspectiveCamera(
+    45,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    1000
+  );
+  // 设置相机位置
+  camera.position.set(-30, 40, 30);
+  // 设置相机方向
+  camera.lookAt(scene.position);
 
-  // 创建平面
+  createAxes(scene);
+  createPlane(scene);
+  createCube(scene);
+  createSphere(scene);
+  createSpotLight(scene);
+
+  document.body.appendChild(renderer.domElement);
+  renderer.render(scene, camera);
+}
+
+init();
+
+/**
+ * 创建平面
+ * @param scene
+ */
+function createPlane(scene) {
   const planeGeometry = new THREE.PlaneGeometry(60, 20);
   const planeMaterial = new THREE.MeshLambertMaterial({
     color: 0xffffff,
@@ -40,8 +57,15 @@ function init() {
   plane.receiveShadow = true;
   // 场景中添加平面
   scene.add(plane);
+}
 
-  // 创建盒子
+function createAxes(scene) {
+  // 设置轴粗细为20像素
+  const axes = new THREE.AxesHelper(20);
+  scene.add(axes);
+}
+
+function createCube(scene) {
   const cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
   const cubeMaterial = new THREE.MeshLambertMaterial({
     color: 0xff0000,
@@ -51,7 +75,13 @@ function init() {
   // 设置投射阴影
   cube.castShadow = true;
   scene.add(cube);
+}
 
+/**
+ * 创建球体
+ * @param scene
+ */
+function createSphere(scene) {
   // 球体
   const sphereGeometry = new THREE.SphereGeometry(4, 20, 20);
   const sphereMaterial = new THREE.MeshLambertMaterial({
@@ -62,12 +92,13 @@ function init() {
   // 设置投射阴影
   sphere.castShadow = true;
   scene.add(sphere);
-  // 设置相机位置
-  camera.position.set(-30, 40, 30);
-  // 设置相机方向
-  camera.lookAt(scene.position);
+}
 
-  // 添加光源
+/**
+ * 创建点光源
+ * @param scene
+ */
+function createSpotLight(scene) {
   // 定义点光源
   const spotLight = new THREE.SpotLight(0xffffff);
   // 设置位置
@@ -80,9 +111,4 @@ function init() {
   spotLight.shadow.camera.near = 40;
 
   scene.add(spotLight);
-
-  document.body.appendChild(renderer.domElement);
-  renderer.render(scene, camera);
 }
-
-init();
