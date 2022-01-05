@@ -82,7 +82,7 @@ function init() {
   gui.add(controls, "bouncingSpeed", 0, 0.5);
   gui.add(controls, "addCube");
   gui.add(controls, "removeCube");
-  gui.add(controls, "numberOfObjects");
+  gui.add(controls, "numberOfObjects").listen();
 
   document.body.appendChild(renderer.domElement);
 
