@@ -14,6 +14,11 @@ function init() {
 
   // 创建场景
   const scene = new THREE.Scene();
+  // 增加雾化效果
+  // 线性增长雾化效果
+  // scene.fog = new THREE.Fog(0xffffff, 0.015, 100);
+  // 指数增长雾化效果
+  scene.fog = new THREE.FogExp2(0xffffff, 0.01);
 
   // 渲染器，还有其他种类的渲染器
   const renderer = new THREE.WebGL1Renderer();
@@ -38,7 +43,6 @@ function init() {
   createSpotLight(scene);
   createAxes(scene);
   const planeGeometry = new THREE.PlaneGeometry(80, 20);
-  console.log(planeGeometry.parameters.width);
   const plane = createPlane(scene, planeGeometry);
   createCube(scene);
   const sphere = createSphere(scene);
