@@ -1,5 +1,5 @@
 import removeDuplicates from "../src/leetcode/removeDuplicates.mjs";
-import {add} from "../src/add.mjs";
+import {add} from "../src/leetcode/add.mjs";
 import assert from 'assert';
 describe('删除重复元素', function () {
     describe('#removeDuplicates()', function () {
