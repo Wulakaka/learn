@@ -4,6 +4,8 @@ import * as THREE from "three";
 
 import Stats from "three/examples/jsm/libs/stats.module";
 
+import * as dat from "../libs/util/dat.gui";
+
 function init() {
   console.log("using Three.js version: " + THREE.REVISION);
 
@@ -39,7 +41,17 @@ function init() {
   const sphere = createSphere(scene);
   createSpotLight(scene);
 
+  // 增加GUI操作界面
+  const controls = new (function () {
+    this.rotationSpeed = 0.02;
+    this.bouncingSpeed = 0.03;
+  })();
+  const gui = new dat.GUI();
+  gui.add(controls, "rotationSpeed", 0, 0.5);
+  gui.add(controls, "bouncingSpeed", 0, 0.5);
+
   document.body.appendChild(renderer.domElement);
+
   let step = 0;
   renderScene();
 
@@ -47,11 +59,11 @@ function init() {
     // 更新统计
     stats.update();
     // 旋转立方体
-    cube.rotation.x += 0.02;
-    cube.rotation.y += 0.02;
-    cube.rotation.z += 0.02;
+    cube.rotation.x += controls.rotationSpeed;
+    cube.rotation.y += controls.rotationSpeed;
+    cube.rotation.z += controls.rotationSpeed;
 
-    step += 0.04;
+    step += controls.bouncingSpeed;
     sphere.position.x = 20 + 10 * Math.cos(step);
     sphere.position.y = 2 + 10 * Math.abs(Math.sin(step));
     requestAnimationFrame(renderScene);
