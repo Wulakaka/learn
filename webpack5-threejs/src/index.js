@@ -162,15 +162,15 @@ function createSphere(scene) {
 }
 
 /**
- * 创建点光源
+ * 创建聚光灯光源
  * @param scene
  */
 function createSpotLight(scene) {
-  // 定义点光源
+  // 定义聚光灯光源
   const spotLight = new THREE.SpotLight(0xffffff);
   // 设置位置
   spotLight.position.set(-40, 40, -15);
-  // 设置由点光源投射阴影
+  // 设置由聚光灯光源投射阴影
   spotLight.castShadow = true;
   // todo 设置阴影的精细程度
   spotLight.shadow.mapSize = new THREE.Vector2(1024, 1024);
