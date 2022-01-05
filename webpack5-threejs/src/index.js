@@ -35,21 +35,54 @@ function init() {
   camera.position.set(-30, 40, 30);
   // 设置相机方向
   camera.lookAt(scene.position);
-
-  createAxes(scene);
-  createPlane(scene);
-  const cube = createCube(scene);
-  const sphere = createSphere(scene);
   createSpotLight(scene);
+  createAxes(scene);
+  const planeGeometry = new THREE.PlaneGeometry(80, 20);
+  console.log(planeGeometry.parameters.width);
+  const plane = createPlane(scene, planeGeometry);
+  createCube(scene);
+  const sphere = createSphere(scene);
 
   // 增加GUI操作界面
   const controls = new (function () {
     this.rotationSpeed = 0.02;
     this.bouncingSpeed = 0.03;
+    this.numberOfObjects = scene.children.length;
+
+    this.addCube = function () {
+      const cubeSize = Math.ceil(Math.random() * 4);
+      const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+      const cubeMaterial = new THREE.MeshLambertMaterial({
+        color: Math.random() * 0xffffff,
+      });
+      const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+      cube.castShadow = true;
+      cube.name = "cube-" + scene.children.length;
+      cube.position.x =
+        -25 + Math.round(Math.random() * planeGeometry.parameters.width);
+      cube.position.y = Math.round(Math.random() * 5);
+      cube.position.z =
+        -10 + Math.round(Math.random() * planeGeometry.parameters.height);
+      scene.add(cube);
+      this.numberOfObjects = scene.children.length;
+    };
+
+    this.removeCube = function () {
+      const allChildren = scene.children;
+      const lastObject = allChildren[allChildren.length - 1];
+      // 避免移除摄像机和光源
+      if (lastObject instanceof THREE.Mesh) {
+        scene.remove(lastObject);
+        this.numberOfObjects = scene.children.length;
+      }
+    };
   })();
   const gui = new dat.GUI();
   gui.add(controls, "rotationSpeed", 0, 0.5);
   gui.add(controls, "bouncingSpeed", 0, 0.5);
+  gui.add(controls, "addCube");
+  gui.add(controls, "removeCube");
+  gui.add(controls, "numberOfObjects");
 
   document.body.appendChild(renderer.domElement);
 
@@ -65,9 +98,13 @@ function init() {
     // 更新统计
     stats.update();
     // 旋转立方体
-    cube.rotation.x += controls.rotationSpeed;
-    cube.rotation.y += controls.rotationSpeed;
-    cube.rotation.z += controls.rotationSpeed;
+    scene.traverse(function (obj) {
+      if (obj instanceof THREE.Mesh && obj !== plane && obj !== sphere) {
+        obj.rotation.x += controls.rotationSpeed;
+        obj.rotation.y += controls.rotationSpeed;
+        obj.rotation.z += controls.rotationSpeed;
+      }
+    });
 
     step += controls.bouncingSpeed;
     sphere.position.x = 20 + 10 * Math.cos(step);
@@ -102,9 +139,10 @@ init();
 /**
  * 创建平面
  * @param scene
+ * @param planeGeometry
+ * @returns {Mesh}
  */
-function createPlane(scene) {
-  const planeGeometry = new THREE.PlaneGeometry(60, 20);
+function createPlane(scene, planeGeometry) {
   const planeMaterial = new THREE.MeshLambertMaterial({
     color: 0xffffff,
   });
@@ -115,6 +153,8 @@ function createPlane(scene) {
   plane.receiveShadow = true;
   // 场景中添加平面
   scene.add(plane);
+
+  return plane;
 }
 
 function createAxes(scene) {
