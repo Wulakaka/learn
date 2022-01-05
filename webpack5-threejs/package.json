@@ -6,7 +6,7 @@
   "scripts": {
     "start": "webpack serve --open",
     "build": "webpack",
-    "test": "mocha"
+    "test": "mocha --reporter list"
   },
   "keywords": [],
   "author": "",
