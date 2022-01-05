@@ -36,10 +36,11 @@ function init() {
   createAxes(scene);
   createPlane(scene);
   const cube = createCube(scene);
-  createSphere(scene);
+  const sphere = createSphere(scene);
   createSpotLight(scene);
 
   document.body.appendChild(renderer.domElement);
+  let step = 0;
   renderScene();
 
   function renderScene() {
@@ -49,6 +50,10 @@ function init() {
     cube.rotation.x += 0.02;
     cube.rotation.y += 0.02;
     cube.rotation.z += 0.02;
+
+    step += 0.04;
+    sphere.position.x = 20 + 10 * Math.cos(step);
+    sphere.position.y = 2 + 10 * Math.abs(Math.sin(step));
     requestAnimationFrame(renderScene);
     renderer.render(scene, camera);
   }
@@ -124,6 +129,8 @@ function createSphere(scene) {
   // 设置投射阴影
   sphere.castShadow = true;
   scene.add(sphere);
+
+  return sphere;
 }
 
 /**
