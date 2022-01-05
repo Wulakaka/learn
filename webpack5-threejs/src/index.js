@@ -75,6 +75,16 @@ function init() {
     requestAnimationFrame(renderScene);
     renderer.render(scene, camera);
   }
+
+  window.addEventListener("resize", onResize, false);
+  function onResize() {
+    // 重设宽高比
+    camera.aspect = window.innerWidth / window.innerHeight;
+    // todo 更新矩阵？
+    camera.updateProjectionMatrix();
+    // 重设大小
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
 }
 
 function initStats(type) {
