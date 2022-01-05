@@ -35,7 +35,7 @@ function init() {
 
   createAxes(scene);
   createPlane(scene);
-  createCube(scene);
+  const cube = createCube(scene);
   createSphere(scene);
   createSpotLight(scene);
 
@@ -43,7 +43,12 @@ function init() {
   renderScene();
 
   function renderScene() {
+    // 更新统计
     stats.update();
+    // 旋转立方体
+    cube.rotation.x += 0.02;
+    cube.rotation.y += 0.02;
+    cube.rotation.z += 0.02;
     requestAnimationFrame(renderScene);
     renderer.render(scene, camera);
   }
@@ -85,6 +90,11 @@ function createAxes(scene) {
   scene.add(axes);
 }
 
+/**
+ * 创建立方体
+ * @param scene
+ * @returns {Mesh}
+ */
 function createCube(scene) {
   const cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
   const cubeMaterial = new THREE.MeshLambertMaterial({
@@ -95,6 +105,8 @@ function createCube(scene) {
   // 设置投射阴影
   cube.castShadow = true;
   scene.add(cube);
+
+  return cube;
 }
 
 /**
