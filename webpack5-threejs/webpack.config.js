@@ -3,7 +3,10 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   mode: "development", // 使用development 模式打包，不要在正式环境中使用
-  entry: "./src/index.js",
+  entry: {
+    main: "./src/index.js",
+    "02-05": "./src/02-05.js",
+  },
   devtool: "inline-source-map", // 使用source-map
   devServer: {
     static: "./dist", // 将 dist 目录下的文件 serve 到 localhost:8080 下
@@ -11,6 +14,12 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: "Output Management",
+      excludeChunks: ["02-05"],
+    }),
+    new HtmlWebpackPlugin({
+      title: "02-05",
+      excludeChunks: ["main"],
+      filename: "02-05.html",
     }),
   ],
   output: {

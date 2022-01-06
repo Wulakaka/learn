@@ -6,7 +6,6 @@ import Stats from "three/examples/jsm/libs/stats.module";
 import { TrackballControls } from "three/examples/jsm/controls/TrackballControls.js";
 
 import * as dat from "../libs/util/dat.gui";
-import { createMultiMaterialObject } from "three/examples/jsm/utils/SceneUtils";
 
 function init() {
   console.log("using Three.js version: " + THREE.REVISION);
@@ -49,10 +48,9 @@ function init() {
   const plane = createPlane(scene, planeGeometry);
   createCube(scene);
   const sphere = createSphere(scene);
-  const customMesh = createCustomMesh(scene);
   // 增加GUI操作界面
   const controls = new (function () {
-    this.rotationSpeed = 0;
+    this.rotationSpeed = 0.02;
     this.bouncingSpeed = 0.03;
     this.numberOfObjects = scene.children.length;
 
@@ -106,7 +104,7 @@ function init() {
     stats.update();
     // 旋转立方体
     scene.traverse(function (obj) {
-      const excludeObjs = [plane, sphere, customMesh];
+      const excludeObjs = [plane, sphere];
       if (obj instanceof THREE.Mesh && !excludeObjs.includes(obj)) {
         obj.rotation.x += controls.rotationSpeed;
         obj.rotation.y += controls.rotationSpeed;
@@ -247,46 +245,4 @@ function initTrackballControls(camera, renderer) {
   trackballControls.keys = [65, 83, 68];
 
   return trackballControls;
-}
-
-function createCustomMesh(scene) {
-  // 指定顶点
-  const verticesOfCube = [
-    1, 2, 1, 1, 2, -1, 1, -2, 1, 1, -2, -1, -1, 2, -1, -1, 2, 1, -1, -2, -1, -1,
-    -2, 1,
-  ];
-
-  // 指定三角形面，顺时针是面向摄像机，逆时针是背对摄像机
-  const indicesOfFaces = [
-    0, 2, 1, 2, 3, 1, 4, 6, 5, 6, 7, 5, 4, 5, 1, 5, 0, 1, 7, 6, 2, 6, 3, 2, 5,
-    7, 0, 7, 2, 0, 1, 3, 4, 3, 6, 4,
-  ];
-
-  const geometry = new THREE.PolyhedronGeometry(
-    verticesOfCube,
-    indicesOfFaces,
-    10,
-    0
-  );
-  const materials = [
-    new THREE.MeshBasicMaterial({
-      color: 0x000000,
-      wireframe: true,
-    }),
-    new THREE.MeshLambertMaterial({
-      opacity: 0.6,
-      color: 0x44ff44,
-      transparent: true,
-    }),
-  ];
-  const mesh = createMultiMaterialObject(geometry, materials);
-  mesh.castShadow = true;
-  mesh.children.forEach(function (e) {
-    e.castShadow = true;
-  });
-  mesh.position.y = 10;
-  mesh.position.x = 10;
-  scene.add(mesh);
-
-  return mesh;
 }
