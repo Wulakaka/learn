@@ -17,7 +17,9 @@ process.argv.forEach((val,index) => {
     console.log(`${index}:${val}`)
 })
 
+// 用于截取参数，但是参数形式必须为--name=value
 const args = require('minimist')(process.argv.slice(2))
 console.log(args['name'] )//joe
 
+// 主动退出
 process.exit(1)
