@@ -1,17 +1,19 @@
 <template>
   <!--  <img alt="Vue logo" src="./assets/logo.png">-->
   <!--  <HelloWorld msg="Welcome to Your Vue.js App"/>-->
+  <NestedSuper></NestedSuper>
   <Draw></Draw>
 </template>
 
 <script>
 // import HelloWorld from './components/HelloWorld.vue'
 import Draw from './components/Draw.vue'
-
+import NestedSuper from '@/components/NestedSuper'
 export default {
   name: 'App',
   components: {
-    Draw
+    Draw,
+    NestedSuper
   }
 }
 </script>
