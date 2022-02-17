@@ -1,0 +1,7 @@
+{
+  "name": "irc-client",
+  "description": "Our first TCP client",
+  "version": "0.0.1",
+  "dependencies": {
+  }
+}
