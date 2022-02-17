@@ -26,7 +26,9 @@ fs.readdir(process.cwd(), function (err,files) {
       if (i === files.length) {
         console.log('')
         process.stdout.write('   \033[33mEnter your choice: \033[39m');
+        // 等待用户输入
         process.stdin.resume()
+        // 设置编码格式为utf8，这样就可以输入特殊字符
         process.stdin.setEncoding('utf8')
       } else {
         file(i)
