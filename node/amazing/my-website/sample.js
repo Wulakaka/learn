@@ -8,7 +8,7 @@ const app =connect()
 // app.use(connect.logger('dev'))
 app.use(logger())
 
-app.use(bodyParser.json())
+app.use(bodyParser.json('application/json'))
 // 实现时间中间件
 app.use(time({time: 500}))
 // 快速响应
