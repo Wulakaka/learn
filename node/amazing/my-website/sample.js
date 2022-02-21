@@ -4,6 +4,7 @@ const logger = require('./logger')
 const bodyParser = require('body-parser')
 const fs = require("fs");
 const formidable = require('formidable')
+const cookieParser = require('cookie-parser')
 // 创建服务
 const app =connect()
 // 记录请求情况
@@ -11,6 +12,8 @@ const app =connect()
 app.use(logger())
 // 传参body解析
 app.use(bodyParser.json('application/json'))
+// cookie
+app.use(cookieParser())
 // 实现时间中间件
 app.use(time({time: 500}))
 // 快速响应
@@ -65,6 +68,11 @@ app.use(function (req,res,next) {
   } else {
     next()
   }
+})
+// 打印cookie
+app.use(function (req, res, next) {
+  console.log(req.cookies)
+  next()
 })
 
 // 监听
