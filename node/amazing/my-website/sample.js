@@ -2,6 +2,8 @@ const connect = require('connect')
 const time = require('./request-time')
 const logger = require('./logger')
 const bodyParser = require('body-parser')
+const fs = require("fs");
+const formidable = require('formidable')
 // 创建服务
 const app =connect()
 // 记录请求情况
@@ -37,6 +39,29 @@ app.use(function (req, res, next) {
     console.log(req.body.foo)
     res.writeHead(200, {'Content-Type': 'application/json'})
     res.end('success')
+  } else {
+    next()
+  }
+})
+
+app.use(function (req,res,next) {
+  if ('/form' === req.url ) {
+    if ('GET' === req.method) {
+      fs.createReadStream(__dirname + '/sample.html').pipe(res)
+    } else if ('POST' === req.method) {
+      const form = formidable({ multiples: true })
+      form.parse(req, (err, fields, files) => {
+        if (err) {
+          res.writeHead(err.httpCode || 400, {'Content-Type': 'text/plain'})
+          res.end(String(err))
+          return
+        }
+        res.writeHead(200, {'Content-Type': 'application/json'})
+        res.end(JSON.stringify({fields, files}, null, 2))
+      })
+    } else {
+      next()
+    }
   } else {
     next()
   }
