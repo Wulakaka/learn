@@ -1,0 +1,8 @@
+{
+  "name": "my-website",
+  "version": "1.0.0",
+  "dependencies": {
+    "body-parser": "^1.19.2",
+    "connect": "^3.7.0"
+  }
+}
