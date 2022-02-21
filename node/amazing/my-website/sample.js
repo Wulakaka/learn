@@ -7,7 +7,7 @@ const app =connect()
 // 记录请求情况
 // app.use(connect.logger('dev'))
 app.use(logger())
-
+// 传参body解析
 app.use(bodyParser.json('application/json'))
 // 实现时间中间件
 app.use(time({time: 500}))
