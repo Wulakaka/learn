@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket cursors</title>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.4.1/dist/socket.io.min.js"
+            integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H"
+            crossorigin="anonymous"></script>
+
+</head>
+<body>
+<h1>WebSocket cursors</h1>
+<script>
+  window.onload = function () {
+    const socket = io('http://localhost:3000')
+    socket.on('connect', () => {
+      console.log('connect')
+      document.onmousemove = function (ev) {
+        socket.emit('move', {x: ev.clientX, y: ev.clientY})
+      }
+    })
+    socket.on('position', (obj) => {
+      for (const id in obj) {
+        // 排除当前
+        if (id === socket.id) continue
+        move(id, obj[id])
+      }
+    })
+
+    socket.on('move', (obj) => {
+      move(obj.id, obj.pos)
+    })
+
+    socket.on('leave', (id) => {
+      console.log('leave', id)
+      remove(id)
+    })
+
+    function move(id, pos) {
+      let cursor = document.getElementById('cursor-' + id)
+      if (!cursor) {
+        cursor = document.createElement('img')
+        cursor.id = 'cursor-' + id
+        cursor.src = '/cursor.png'
+        cursor.style.position = 'absolute'
+        document.body.appendChild(cursor)
+      }
+      cursor.style.left = pos.x + 'px'
+      cursor.style.top = pos.y + 'px'
+    }
+
+    function remove(id) {
+      const cursor = document.getElementById('cursor-' + id)
+      cursor.parentNode.removeChild(cursor)
+    }
+  }
+</script>
+</body>
+</html>
