@@ -50,7 +50,7 @@ io.on('connection', socket => {
   })
 
   socket.on('song', song => {
-    if (socket.dj){
+    if (socket.dj) {
       currentSong = song
       socket.broadcast.emit('song', song)
     }

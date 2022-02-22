@@ -66,8 +66,9 @@ window.onload = function () {
   })
 
   const playing = document.getElementById('playing')
+
   function play(song) {
-    if (!song)return
+    if (!song) return
     playing.innerHTML = '<hr><b>Now Playing:</b>' +
       song.ArtistName + ' ' + song.SongName + '<br>'
     const iframe = document.createElement('iframe')
