@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket echo test</title>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.4.1/dist/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
+</head>
+<body>
+<h1>WebSocket Echo</h1>
+<h2>Latency: <span id="latency"></span>ms</h2>
+<script>
+
+  let lastMessage
+
+  window.onload = function () {
+    // create socket
+    // const ws = new WebSocket('ws://localhost:3000')
+    const socket = io('http://localhost:3000');
+    socket.on('connect', () => {
+      console.log(socket.id)
+      ping ()
+    })
+    socket.on('message', (data) => {
+      console.log('got: '+ data)
+      // you got echo back,measure latency
+      document.getElementById('latency').innerHTML = new Date() - lastMessage
+      // ping again
+      ping()
+    })
+    // ws.onopen = function () {
+    //   // send first ping
+    //   ping()
+    // }
+    // ws.onmessage = function (ev) {
+    //   console.log('got: '+ ev.data)
+    //   // you got echo back,measure latency
+    //   document.getElementById('latency').innerHTML = new Date() - lastMessage
+    //   // ping again
+    //   ping()
+    // }
+
+    function ping () {
+      // record the timestamp
+      lastMessage = +new Date().getTime()
+      // send the message
+      socket.emit('message', 'ping')
+    }
+  }
+</script>
+</body>
+</html>
