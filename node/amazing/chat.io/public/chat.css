@@ -5,3 +5,9 @@
 .confirmed {
     color: darkgreen;
 }
+
+#results a {
+    display: none;
+}
+
+form.isDJ #results a {display: inline}
