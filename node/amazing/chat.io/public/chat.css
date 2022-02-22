@@ -1,0 +1,7 @@
+#chat {
+    display: none;
+}
+
+.confirmed {
+    color: darkgreen;
+}
