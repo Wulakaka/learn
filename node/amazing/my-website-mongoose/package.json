@@ -1,0 +1,7 @@
+{
+  "name": "my-website-mongoose",
+  "version": "1.0.0",
+  "dependencies": {
+    "mongoose": "^6.2.4"
+  }
+}
