@@ -42,9 +42,9 @@ const result = [1, 3, 5].map(element => element - 1)
 console.log(result) // [0, 2, 4]
 ```
 
-## Synchronous or asynchronous?
+### Synchronous or asynchronous?
 
-### An unpredictable function
+#### An unpredictable function
 
 API 在某些情况下为同步，某些情况下为异步
 
@@ -67,7 +67,7 @@ function inconsistentRead(filename, cb) {
 }
 ```
 
-### Unleashing Zalgo
+#### Unleashing Zalgo
 
 ```javascript
 function createFileReader(filename) {
@@ -109,7 +109,7 @@ First Call data: some data
 
 ***最主要的原因是，在代码中先调用了监听器，再执行的注册。***
 
-### Using synchronous APIs
+#### Using synchronous APIs
 
 同步的方法不一定要使用CPS，使用 direct style 就是最佳实践<br>
 使用同步的API而不是异步会有一些警告：
@@ -119,7 +119,7 @@ First Call data: some data
 
 尽量不适用同步的API，但是某些情况下仍然适用，比如在项目初始化的过程中加载配置。
 
-### Guaranteeing asynchronicity with deferred execution 保证延迟执行的异步性
+#### Guaranteeing asynchronicity with deferred execution 保证延迟执行的异步性
 
 使用 process.nextTick() 方法让执行变为异步。 它的功能很简单：它接受一个回调作为一个参数，并且把它推到事件队列的顶端，在任何等待状态的 I/O 事件之前，然后立即返回。
 然后当当前运行的操作将控制权带回事件循环时，将立即调用回调。
@@ -149,3 +149,36 @@ I/O 事件之前运行，它会被更快的执行，但是在某些情况下，�
 setImmediate() 会比 setTimeout(callback, 0) 执行更快。 原因：我们必须考虑到 event loop 在不同的阶段执行所有的回调；对于我们正在考虑得类型，我们有计时器在I/O回调之前执行，而计时器又在
 setImmediate() 回调之前执行。 这意味着，如果我们在setTimeout() 回调、I/O 回调或在这两个阶段后排队的微任务中排队使用 setImmediate() 的任务，那么回调将在我们当前所处的阶段之后的阶段执行。
 setTimeout() 回调必须等待事件循环的下一周期。
+***这段文字无法理解***
+
+### Node.js callback conventions
+
+#### The callback comes last
+
+#### Any error always comes first
+
+#### Propagating errors
+
+#### Uncaught exceptions
+
+## The Observer pattern
+
+### The EventEmitter
+
+### Creating and using the EventEmitter
+
+### propagating errors
+
+### Making any object observable
+
+### EventEmitter and memory leaks
+
+### Synchronous and asynchronous events
+
+### EventEmitter versus callbacks
+
+### Combining callbacks and events
+
+## Summary
+
+## Exercises
