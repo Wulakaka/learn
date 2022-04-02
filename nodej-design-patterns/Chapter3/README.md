@@ -155,11 +155,122 @@ setTimeout() 回调必须等待事件循环的下一周期。
 
 #### The callback comes last
 
+当一个方法接收一个回调作为参数，回调必须为最后一个参数。
+
+```javascript
+readFile(fileName, [options], callback)
+```
+
 #### Any error always comes first
+
+在Node.js中，CPS函数产生的任何错误总是作为回调的第一个参数传递，任何实际结果都从第二个参数开始传递。 如果操作成果而没有错误，则第一个参数是null或undefined。
+
+```javascript
+readFile('foo.txt', 'utf8', (err, data) => {
+    if (err) {
+        handleError(err)
+    } else {
+        processData(data)
+    }
+})
+```
+
+每次都需要检查错误，方便debug。<br>
+error的类型一定要是Error。
 
 #### Propagating errors
 
-#### Uncaught exceptions
+在同步的direct style 的方法中通过throw 语句来传播error，这会导致错误在调用栈中跳升，直到被捕获。
+
+在异步的CPS中，只需将错误传递给链中的下一个回调即可完成适当的错误传播。
+
+```javascript
+import {readFile} from 'fs'
+
+function readJSON(filename, callback) {
+    readFile(filename, 'utf8', (err, data) => {
+        let parsed
+        if (err) {
+            // propagate the error and exit the current function
+            return callback(err)
+        }
+        try {
+            // parse the file contents
+            parsed = JSON.parse(data)
+        } catch (err) {
+            return callback(err)
+        }
+        // no errors, propagate just data
+        callback(null, parsed)
+    })
+}
+```
+
+我们在处理readFile() 的错误时并没有 throw 或者 return；相反，我们只是像使用其他结果一样使用回调。 而且，请注意我们如何使用try...catch 语句来捕获任何JSON.parse()
+抛出的错误，一个同步的方法所以使用传统的 throw 指令来传播错误给调用者。最后，如果所有都正常，null 作为调用callback的第一个参数表示没有错误。
+
+同样有趣的是，我们是如何避免在try代码块中调用回调的。这是因为这么做会捕获回调执行的所有错误，而这通常是我们不想要的。
+
+#### Uncaught exceptions 未捕获异常
+
+有时，在异步的回调中有可能会发生一个错误被抛出但是没有被捕获。例如我们没有在之前的readFile() 方法中使用try...catch 包裹 JSON.parse()。 在异步的回调中抛出错误将会导致错误跳升到event
+loop，所以它永远不会被传播到下一个回调函数中。 在 Node.js 中，这是一个不可恢复的状态，并且程序会简单的用一个非零退出码退出，将堆栈跟踪打印到 stderr 接口。
+
+```javascript
+function readJSONThrows(filename, callback) {
+    readFile(filename, 'utf8', (err, data) => {
+        if (err) {
+            return callback(err)
+        }
+        callback(null, JSON.parse(data))
+    })
+}
+```
+
+现在，在我们刚刚定义的方法中，没有办法捕获到来自JSON.parse()的最终异常。如果我们尝试解析一个无效的JSON文件：
+
+```javascript
+readJSONThrow('invalid_json.json', (err) => console.error(err))
+```
+
+这将会导致程序突然中止，一个类似于下方的堆栈追踪信息将会被打印到控制台：
+
+```
+SyntaxError: Unexpected token h in JSON at positon 1
+    at JSON.parse (<anonymous>)
+    at file:///.../03-callbacks-and-events/08-uncaught-errors/index.js:8:25
+    at FSReqCallback.readFileAfterClose [as oncomplete] (internal/fs/read_file_context.js:61:3)
+```
+
+现在，如果你看到了上述的堆栈追踪，你将会发现它开始于从置的fs模块，并且正是从原生API读取完成并且通过event loop将其结果返回到fs.readFile()函数的点开始。
+这清楚地展示了异常从我们的回调，上升到调用栈，并且直接到了最终捕获并抛出到控制台的event loop。
+
+这也意味着用try...catch 包裹 readJSONThrows() 的调用将无效，因为该块操作的堆栈与调用回调的堆栈不同。 下面的代码展示了我们刚刚描述的反模式。
+
+```javascript
+try {
+    readJSONThrows('invalid_json.json', (err) => console.error(err))
+} catch (err) {
+    console.log('This will NOT catch the JSON parsing exception')
+}
+```
+
+上面的catch语句永远不会接收到JSON解析的错误，因为它将沿着引发错误的调用堆栈移动，即在event loop 中，而不是在触发异步操作的函数中。
+
+正如之前提到的，程序将会在异常到达event loop时中止。然而，我们仍然有机会在程序停止前做一些清理和日志。 事实上，当这个发生时，Node.js 会触发一个特殊的事件称为 uncaughtException，就在退出进程之前。
+下面是个代码示例：
+
+```javascript
+process.on('uncaughtException', (err) => {
+    console.error(`This will catch at last the JSON parsing exception: ${err.message}`)
+    // Terminates the application with 1 (error) as exit code.
+    // Without the following line, the application would continue
+    process.exit(1)
+})
+```
+
+理解一个未捕获的异常会导致程序进入一个无法保证一致的状态是很重要的，这会导致不可预见的问题。 比如，可能有未完成的I/O请求还在运行，或者闭包可能变得不一致。 这就是为什么总是建议永远不要让程序在捕获未捕获的异常后继续运行，特别是生产环境。
+相反，进程应该立即退出，也可以选择在运行一些必要的清理任务之后，理想情况下，管理进程应该重启程序。 这个也被称为fail-fast方法，在Node.js中也是推荐的做法。
 
 ## The Observer pattern
 
