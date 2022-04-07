@@ -274,7 +274,29 @@ process.on('uncaughtException', (err) => {
 
 ## The Observer pattern
 
+**观察者模式是一个当它的状态发生改变时可以通知一组观察者（称为 subject）的对象**
+
+它与回调模式最大的不同是它可以通知多个观察者，而传统的CPS回调通常只能传播结果给唯一的监听者：回调。
+
 ### The EventEmitter
+
+![Listeners receiving events from an EventEmitter](images/img1.png)
+
+获得EventEmitter的引用
+```javascript
+import { EventEmitter } from 'events'
+const emitter = new EventEmitter()
+```
+
+`EventEmitter`的基本方法如下：
+- `on(event, listenter)`: 这个方法允许我们为给定的事件类型注册新的监听器
+- `once(event, listener)`: 这个方法注册一个新的监听器，在第一次触发事件后被移除
+- `emit(event, [arg1], [...])`: 这个方法产生一个新的事件，并提供要传递给侦听器的其他参数
+- `removeListener(event, listener)`: 此方法移除指定事件类型的侦听器
+
+所有上述方法将会返回`EventEmitter`实例给后续的链。
+
+第一个参数不是一个错误，但是在`emit()`方法调用时可以传递任意数据。
 
 ### Creating and using the EventEmitter
 
