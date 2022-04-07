@@ -13,7 +13,7 @@
 
 ```javascript
 function additionAsync(a, b, callback) {
-    setTimeout(() => callback(a + b), 100)
+  setTimeout(() => callback(a + b), 100)
 }
 ```
 
@@ -31,7 +31,7 @@ Result: 3
 
 执行 setTimeout 会立即返回，控制权会交给 additionAsync，然后交给它的调用者。 一旦异步请求发送，控制权会立刻交还给 event loop，从而允许处理事件队列中的新的事件。
 
-![img.png Control flow of an asynchronous function's invocation](images/img.png)
+![Control flow of an asynchronous function's invocation](images/img.png)
 
 #### Non-CPS callbacks
 
@@ -54,16 +54,16 @@ import {readFile} from 'fs'
 const cache = new Map()
 
 function inconsistentRead(filename, cb) {
-    if (cache.has(filename)) {
-        // invoke synchronously
-        cb(cache.get(filename))
-    } else {
-        // asynchronous function
-        readFile(filename, 'utf8', (err, data) => {
-            cache.set(filename, data)
-            cb(data)
-        })
-    }
+  if (cache.has(filename)) {
+    // invoke synchronously
+    cb(cache.get(filename))
+  } else {
+    // asynchronous function
+    readFile(filename, 'utf8', (err, data) => {
+      cache.set(filename, data)
+      cb(data)
+    })
+  }
 }
 ```
 
@@ -71,13 +71,13 @@ function inconsistentRead(filename, cb) {
 
 ```javascript
 function createFileReader(filename) {
-    const listeners = []
-    inconsistentRead(filename, value => {
-        listeners.forEach(listener => listener(value))
-    })
-    return {
-        onDataReady: listener => listeners.push(listener)
-    }
+  const listeners = []
+  inconsistentRead(filename, value => {
+    listeners.forEach(listener => listener(value))
+  })
+  return {
+    onDataReady: listener => listeners.push(listener)
+  }
 }
 ```
 
@@ -86,12 +86,12 @@ function createFileReader(filename) {
 ```javascript
 const reader1 = createFileReader('data.txt')
 reader1.onDataReady(data => {
-    console.log(`First call data: ${data}`)
-    // sometime later we try to read again from the same file
-    const reader2 = createFileReader('data.txt')
-    reader2.onDataReady(data => {
-        console.log(`Second call data: ${data}`)
-    })
+  console.log(`First call data: ${data}`)
+  // sometime later we try to read again from the same file
+  const reader2 = createFileReader('data.txt')
+  reader2.onDataReady(data => {
+    console.log(`Second call data: ${data}`)
+  })
 })
 ```
 
@@ -130,15 +130,15 @@ import {readFile} from 'fs'
 const cache = new Map()
 
 function consistentReadAsync(filename, callback) {
-    if (cache.has(filename)) {
-        // deferred callback invocation
-        process.nextTick(() => callback(cache.get(filename)))
-    } else {
-        // asynchronous function
-        readFile(filename, 'utf8', (err, data) => {
-            callback(data)
-        })
-    }
+  if (cache.has(filename)) {
+    // deferred callback invocation
+    process.nextTick(() => callback(cache.get(filename)))
+  } else {
+    // asynchronous function
+    readFile(filename, 'utf8', (err, data) => {
+      callback(data)
+    })
+  }
 }
 ```
 
@@ -167,11 +167,11 @@ readFile(fileName, [options], callback)
 
 ```javascript
 readFile('foo.txt', 'utf8', (err, data) => {
-    if (err) {
-        handleError(err)
-    } else {
-        processData(data)
-    }
+  if (err) {
+    handleError(err)
+  } else {
+    processData(data)
+  }
 })
 ```
 
@@ -188,21 +188,21 @@ error的类型一定要是Error。
 import {readFile} from 'fs'
 
 function readJSON(filename, callback) {
-    readFile(filename, 'utf8', (err, data) => {
-        let parsed
-        if (err) {
-            // propagate the error and exit the current function
-            return callback(err)
-        }
-        try {
-            // parse the file contents
-            parsed = JSON.parse(data)
-        } catch (err) {
-            return callback(err)
-        }
-        // no errors, propagate just data
-        callback(null, parsed)
-    })
+  readFile(filename, 'utf8', (err, data) => {
+    let parsed
+    if (err) {
+      // propagate the error and exit the current function
+      return callback(err)
+    }
+    try {
+      // parse the file contents
+      parsed = JSON.parse(data)
+    } catch (err) {
+      return callback(err)
+    }
+    // no errors, propagate just data
+    callback(null, parsed)
+  })
 }
 ```
 
@@ -218,12 +218,12 @@ loop，所以它永远不会被传播到下一个回调函数中。 在 Node.js 
 
 ```javascript
 function readJSONThrows(filename, callback) {
-    readFile(filename, 'utf8', (err, data) => {
-        if (err) {
-            return callback(err)
-        }
-        callback(null, JSON.parse(data))
-    })
+  readFile(filename, 'utf8', (err, data) => {
+    if (err) {
+      return callback(err)
+    }
+    callback(null, JSON.parse(data))
+  })
 }
 ```
 
@@ -249,9 +249,9 @@ SyntaxError: Unexpected token h in JSON at positon 1
 
 ```javascript
 try {
-    readJSONThrows('invalid_json.json', (err) => console.error(err))
+  readJSONThrows('invalid_json.json', (err) => console.error(err))
 } catch (err) {
-    console.log('This will NOT catch the JSON parsing exception')
+  console.log('This will NOT catch the JSON parsing exception')
 }
 ```
 
@@ -262,10 +262,10 @@ try {
 
 ```javascript
 process.on('uncaughtException', (err) => {
-    console.error(`This will catch at last the JSON parsing exception: ${err.message}`)
-    // Terminates the application with 1 (error) as exit code.
-    // Without the following line, the application would continue
-    process.exit(1)
+  console.error(`This will catch at last the JSON parsing exception: ${err.message}`)
+  // Terminates the application with 1 (error) as exit code.
+  // Without the following line, the application would continue
+  process.exit(1)
 })
 ```
 
@@ -274,21 +274,24 @@ process.on('uncaughtException', (err) => {
 
 ## The Observer pattern
 
-**观察者模式是一个当它的状态发生改变时可以通知一组观察者（称为 subject）的对象**
+*观察者模式是一个当它的状态发生改变时可以通知一组观察者（称为 subject）的对象*
 
 它与回调模式最大的不同是它可以通知多个观察者，而传统的CPS回调通常只能传播结果给唯一的监听者：回调。
 
 ### The EventEmitter
 
-![Listeners receiving events from an EventEmitter](images/img1.png)
+![Listeners receiving events from an EventEmitter](images/img1.png "Listeners receiving events from an EventEmitter")
 
 获得EventEmitter的引用
+
 ```javascript
-import { EventEmitter } from 'events'
+import {EventEmitter} from 'events'
+
 const emitter = new EventEmitter()
 ```
 
 `EventEmitter`的基本方法如下：
+
 - `on(event, listenter)`: 这个方法允许我们为给定的事件类型注册新的监听器
 - `once(event, listener)`: 这个方法注册一个新的监听器，在第一次触发事件后被移除
 - `emit(event, [arg1], [...])`: 这个方法产生一个新的事件，并提供要传递给侦听器的其他参数
@@ -300,11 +303,120 @@ const emitter = new EventEmitter()
 
 ### Creating and using the EventEmitter
 
+```javascript
+import {EventEmitter} from 'events'
+import {readFile} from 'fs'
+
+function findRegex(files, regex) {
+  const emitter = new EventEmitter()
+  for (const file of files) {
+    readFile(file, 'utf8', (err, content) => {
+      if (err) {
+        return emitter.emit('error', err)
+      }
+      emitter.emit('fileread', file)
+      const match = content.match(regex)
+      if (match) {
+        match.forEach(elem => emitter.emit('found', file, elem))
+      }
+    })
+  }
+}
+```
+
+如何使用
+
+```javascript
+fileRegex(
+  ['fileA', 'fileB'],
+  /hello\w+/g
+)
+  .on('fileread', file => console.log(`${file} was read`))
+  .on('found', (file, match) => console.log(`Matched "${match}" in ${file}`))
+  .on('error', err => console.error(`Error emitted ${err.message}`))
+```
+
+我们为每个事件类型注册了一个侦听器。
+
 ### propagating errors
+
+*`EventEmitter`会用特殊的方式处理`error`事件。如果发出此类事件并且没有找到相关的侦听器，它将自动抛出异常并且从当前应用中退出。因此，建议始终为`error`事件注册侦听器。*
 
 ### Making any object observable
 
+在一个类中实现 `findRegex()` 方法的功能
+
+```javascript
+import {EventEmitter} from 'events'
+import {readFile} from 'fs'
+
+class FindRegex extends EventEmitter {
+  constructor(regex) {
+    super()
+    this.regex = regex
+    this.files = []
+  }
+
+  addFile(file) {
+    this.files.push(file)
+    return this
+  }
+
+  find() {
+    for (const file of this.files) {
+      readFile(file, 'utf8', (err, content) => {
+        if (err) {
+          return this.emit('error', err)
+        }
+        this.emit('fileread', file)
+        const match = content.match(this.regex)
+        if (match) {
+          match.forEach(elem => this.emit('found', file, elem))
+        }
+      })
+    }
+    return this
+  }
+}
+```
+
+如何使用
+
+```javascript
+const findRegexInstance = new FindRegex(/hello\w+/)
+findRegexInstance
+  .addFile('fileA.txt')
+  .addFile('fileB.txt')
+  .find()
+  .on('found', (file, match) => console.log(`Matched "${match}" in file ${file}`))
+  .on('error', err => console.error(`Error emitted ${err.message}`))
+```
+
+`Server` 对象也是继承自 `EventEmitter` 方法，所以允许产生`request`事件、`connection`事件、`closed`事件。
+
+Node.js 流也是一个有名的继承自 `EventEmitter`的对象。
+
 ### EventEmitter and memory leaks
+
+未释放的 `EventEmitter` 侦听器是Node.js（以及一般的JavaScript）内存泄漏的主要来源。
+
+```javascript
+const thisTakesMemory = 'A big string...'
+const listener = () => {
+  console.log(thisTakesMemory)
+}
+emitter.on('an_event', listener)
+```
+
+`thisTakeMemory`变量在侦听器中引用，所以它的内存被保留，直到侦听器从`emitter`中释放，或者直到`emitter`自己被垃圾回收，这只有在没有任何活跃的引用时才会发生，使其无法访问。
+
+```javascript
+emitter.removeListener('an_event', listenrer)
+```
+
+当注册到一个事件的侦听器达到一定数量时， `EventEmitter`会产生一个警告。可以通过`EventEmitter`的`setMaxListeners()`方法调整限制。
+
+我们可以使用方便的方法 `once(event, listener)` 代替`on(event, listener)` 来自动注销。但是如果指定的事件从来不会触发，侦听器永远不会释放，导致内存泄漏。
 
 ### Synchronous and asynchronous events
 
