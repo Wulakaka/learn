@@ -420,10 +420,77 @@ emitter.removeListener('an_event', listenrer)
 
 ### Synchronous and asynchronous events
 
+重要的是不要在同一个 `EventEmitter` 中混用同步和异步的触发方法，更重要的是，不要混合使用同步和异步的代码触发同一个事件类型。 触发同步和异步事件的最主要的区别在于侦听器的注册方式。
+
+在事件被异步触发的情况下，即使在触发生成事件的任务之后，我们可以注册新的侦听器，直到当前堆栈产生新的事件循环。
+
+相反，如果我们在任务已经执行之后同步的触发事件，我们必须在执行这些任务之前注册侦听器，否则我们会错过所有事件。如果我们把 `find()` 方法改为同步：
+
+```
+find () {
+  for (const file of this.files) {
+    let content
+    try {
+      content = readFileSync(file, 'utf8')
+    } catch (err) {
+      this.emit('error', err)
+    }
+    this.emit('fileread', file)
+    const match = content.match(this.regex)
+    if (match) {
+      match.forEach(elem => this.emit('fond', file, elem))
+    }
+  }
+}
+```
+
+现在，我们尝试在运行 `find()` 任务前注册一个侦听器，然后在之后注册第二个：
+
+```javascript
+const findRegexSyncInstance = new FindReadRegex(/hello\w+/)
+findRegexSyncInstance
+  .addFile('fileA.txt')
+  .addFile('fileB.txt')
+  // this listener is invoked
+  .on('fond', (file, match) => console.log(`[Before] Matched "${match}"`))
+  .find()
+  // this listener is never invoked
+  .on('fond', (file, match) => console.log(`[After] Matched "${match}"`))
+```
+
+在一些（罕见的）情况下，以同步的方式触发事件是有意义的，但 `EventEmitter` 的本质在于它处理异步事件的能力。
+
 ### EventEmitter versus callbacks
 
-### Combining callbacks and events
+一个常见的窘境是在定义一个异步的API的时候，是使用 `EventEmitter` 还是回调。
+通常区分规则是语义上的：当一个结果必须通过异步来返回，使用回调；而当需要沟通某事已经发生时，使用事件。
 
+但除了这个简单的原则外，这两种范式在大多数情况下是等价的，并允许我们取得相同的成果，这一事实也产生了许多混乱，以以下代码为例：
+
+```javascript
+import {EventEmitter} from 'events'
+function helloEvents () {
+  const eventEmitter = new EventEmitter()
+  setTimeout(() => eventEmitter.emit('complete', 'hello world'), 100)
+  return eventEmitter
+}
+function helloCallback (cb) {
+  setTimeout(() => cb(null, 'hello world'), 100)
+}
+helloEvents().on('complete', message => console.log(message))
+helloCallback((err,message) => console.log(message))
+```
+
+一些提示
+
+- 当要支持不同类型的事件时，回调有一些限制。事实上，我们把类型作为参数传递给回调来区分多种不同的事件，或者接收多个回调。但是这不能完全被视为一个优雅的API，这种情况下， `EventEmitter` 能够提供更好的接口和更精简的代码。
+- 当相同的事件会触发多次或永远不会触发的情况下，应该使用 `EventEmitter` 。事实上，回调被期望只调用一次，无论操作成功或失败。
+可能重复的情况应该让我们重新思考事件的语义性质，这更类似于必须传达的事件，而不是要返回的结果。
+- 使用回调的API只能通知一个特定的回调，而使用 `EventEmitter` 允许我们对同样的事件注册多个侦听器。
+
+### Combining callbacks and events
+有些特定的情况下可以同时使用 `EventEmitter` 和回调。
+这种模式非常强大，因为它允许我们使用传统的回调异步的传递结果，同时返回一个 `EventEmitter` ，可用于提供有关异步进程状态更详细的描述。
 ## Summary
 
 ## Exercises
