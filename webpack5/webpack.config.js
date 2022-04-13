@@ -3,6 +3,21 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 module.exports = {
     mode: 'production',
     entry: './src/index.js',
+    module: {
+        rules: [
+            {
+                test: /.s[ac]ss$/i,
+                use: [
+                  // creates `style` nodes from JS string
+                  "style-loader",
+                  // translates CSS into CommonJS
+                  "css-loader",
+                  // complies Sass to CSS
+                  "sass-loader"
+                ]
+            }
+        ]
+    },
     devtool: 'inline-source-map',
     devServer: {
         contentBase: './dist'

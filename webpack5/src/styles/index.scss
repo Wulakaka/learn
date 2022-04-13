@@ -1,0 +1,7 @@
+@use "style";
+
+$body-color: red;
+
+body {
+  color: style.$black;
+}

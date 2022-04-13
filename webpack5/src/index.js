@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import './styles/index.scss'
 // import print from "./print";
 function component() {
     const element = document.createElement('div')
