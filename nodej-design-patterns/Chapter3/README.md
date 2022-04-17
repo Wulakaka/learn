@@ -469,28 +469,41 @@ findRegexSyncInstance
 
 ```javascript
 import {EventEmitter} from 'events'
-function helloEvents () {
+
+function helloEvents() {
   const eventEmitter = new EventEmitter()
   setTimeout(() => eventEmitter.emit('complete', 'hello world'), 100)
   return eventEmitter
 }
-function helloCallback (cb) {
+
+function helloCallback(cb) {
   setTimeout(() => cb(null, 'hello world'), 100)
 }
+
 helloEvents().on('complete', message => console.log(message))
-helloCallback((err,message) => console.log(message))
+helloCallback((err, message) => console.log(message))
 ```
 
 一些提示
 
 - 当要支持不同类型的事件时，回调有一些限制。事实上，我们把类型作为参数传递给回调来区分多种不同的事件，或者接收多个回调。但是这不能完全被视为一个优雅的API，这种情况下， `EventEmitter` 能够提供更好的接口和更精简的代码。
 - 当相同的事件会触发多次或永远不会触发的情况下，应该使用 `EventEmitter` 。事实上，回调被期望只调用一次，无论操作成功或失败。
-可能重复的情况应该让我们重新思考事件的语义性质，这更类似于必须传达的事件，而不是要返回的结果。
+  可能重复的情况应该让我们重新思考事件的语义性质，这更类似于必须传达的事件，而不是要返回的结果。
 - 使用回调的API只能通知一个特定的回调，而使用 `EventEmitter` 允许我们对同样的事件注册多个侦听器。
 
 ### Combining callbacks and events
+
 有些特定的情况下可以同时使用 `EventEmitter` 和回调。
 这种模式非常强大，因为它允许我们使用传统的回调异步的传递结果，同时返回一个 `EventEmitter` ，可用于提供有关异步进程状态更详细的描述。
+
 ## Summary
 
 ## Exercises
+
+- **3.1 一个简单的事件**
+- **3.2 Ticker：**
+  接收一个数字和回调作为入参。方法返回一个 EventEmitter，每50毫秒触发 tick 事件，直到毫秒数为入参的数字。
+  当毫秒数过去时，该函数还将调用回调，从而提供发出的tick事件的总计数。
+  提示：可以递归使用setTimeout 安排另一个setTimeout()。
+- **3.3 一个简单的更改**
+- **3.4 与错误玩耍**
