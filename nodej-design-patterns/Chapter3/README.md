@@ -507,4 +507,6 @@ helloCallback((err, message) => console.log(message))
   当毫秒数过去时，该函数还将调用回调，从而提供发出的tick事件的总计数。
   提示：可以递归使用setTimeout 安排另一个setTimeout()。
 - **3.3 一个简单的更改**
+  修改3.2 中的方法，方法调用时立即发出 `tick` 事件。
+  _（不能在函数中直接使用event.emit('tick')，因为此时还未注册侦听器）_
 - **3.4 与错误玩耍**
