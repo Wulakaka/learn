@@ -1,5 +1,9 @@
 # Asynchronous Control Flow Patterns with Callbacks
 
+- 异步编程的挑战。
+- 避免回调地狱和其他回调的最佳实践。
+- 常见的异步模式，如顺序执行、顺序迭代、并行执行和有限的并行执行。
+
 ## The difficulties of asynchronous programming
 
 ### Creating a simple web spider
