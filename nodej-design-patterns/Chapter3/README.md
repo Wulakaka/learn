@@ -501,6 +501,7 @@ helloCallback((err, message) => console.log(message))
 ## Exercises
 
 - **3.1 一个简单的事件**
+  修改异步 `FindRegex` 类，当查找进程开始时发出一个事件，传递输入的文件列表作为参数。
 - **3.2 Ticker：**
   接收一个数字和回调作为入参。方法返回一个 EventEmitter，每50毫秒触发 tick 事件，直到毫秒数为入参的数字。
   当毫秒数过去时，该函数还将调用回调，从而提供发出的tick事件的总计数。
