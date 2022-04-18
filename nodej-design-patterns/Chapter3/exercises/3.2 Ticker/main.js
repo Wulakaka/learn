@@ -1,27 +1,6 @@
-import {EventEmitter} from 'events'
+import ticker from "./ticker.js";
 
 const {stdin, stdout} = process
-
-function ticker(num, callback) {
-  const start = new Date().getTime()
-  const event = new EventEmitter()
-  event.emit('tick')
-  let count = 0
-  const fn = () => {
-    setTimeout(() => {
-      const now = new Date().getTime()
-      if (now - start < num) {
-        event.emit('tick')
-        count++
-        fn()
-      } else {
-        callback(null, count)
-      }
-    }, 50)
-  }
-  fn()
-  return event
-}
 
 const start = () => {
   stdout.write('enter num:')

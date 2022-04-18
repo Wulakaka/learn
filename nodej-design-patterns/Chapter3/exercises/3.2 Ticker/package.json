@@ -1,7 +1,7 @@
 {
   "name": "ticker",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "main.js",
   "dependencies": {
   },
   "type": "module"
