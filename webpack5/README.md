@@ -1,6 +1,9 @@
 # [Sass-loader 说明文档](https://www.npmjs.com/package/sass-loader)
 
+webpack 的说明文档有中文[链接](https://webpack.docschina.org/loaders/sass-loader/)
+
 ### 安装
+
 `npm install sass-loader sass --save-dev`
 
 `sass-loader` 需要手动安装 Dart Sass/Node Sass 或 Sass Embedded。
@@ -18,7 +21,9 @@ _Sass Embedded 还在试验阶段，所以有些特性无法使用_
 然后添加loader到Webpack的配置中。
 
 ### 在 webpack.config.js 中配置 sass-loader
+
 #### webpack.config.js
+
 ```javascript
 module.exports = {
   module: {
@@ -40,6 +45,7 @@ module.exports = {
 ```
 
 ### 解析 `import` @规则
+
 Webpack 提供一种更高级的文件解析机制。
 
 `sass-loader` 使用了Sass的自定义的导入特性来传递所有参数给Webpack的解析引擎。所以可以导入 `node_modules`的Sass 模块。
@@ -52,8 +58,10 @@ Webpack 提供一种更高级的文件解析机制。
 为什么可以删除？loader首先会尝试解析 `@import` 为相对路径。如果无法解析，loader会尝试在 `node_module` 中解析。
 
 前置 `~` 到模块路径中告诉webpack 在 `node_module` 中搜索路径。
+
 ```scss
 @import "~bootstrap";
 ```
+
 很重要的一点是只使用 `~`，因为 `~/`会解析根路径。Webpack需要分辨 `bootstrap` 和 `~bootstrap`，因为CSS 和 Sass 文件没有特殊的导入相对路径的语法。
 `@import "style.scss"` 和 `@import “./style.scss”`是相同的。
