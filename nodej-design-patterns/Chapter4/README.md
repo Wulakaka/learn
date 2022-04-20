@@ -399,6 +399,61 @@ _顺序迭代模式
 为此，我们只需要修改 `spiderLinks()` 函数来确保一次性生成所有的 `spider()` 任务，
 然后仅在所有任务都完成执行时调用最终回调。所以，让我们像下面这样修改 `spiderLinks()` ：
 
+```javascript
+function spiderLinks(currentUrl, body, nesting, cb) {
+  if (nesting === 0) {
+    return process.nextTick(cb)
+  }
+  const links = getPageLinks(currentUrl, body)
+  if (links.length === 0) {
+    return process.nextTick(cb)
+  }
+  let completed = 0
+  let hasErrors = false
+
+  function done(err) {
+    if (err) {
+      hasErrors = true
+      return cb(err)
+    }
+    if (++completed === links.length && !hasErrors) {
+      return cb()
+    }
+  }
+
+  links.forEach(link => spider(link, nesting - 1, done))
+}
+```
+
+让我们讨论下修改了什么。正如之前提到的，现在所有 `spider()` 任务一次性全部开始。
+对 `links` 数组简单的迭代和直接开始每个任务而无需等待前一个任务完成使这成为可能：
+
+```javascript
+links.forEach(link => spider(link, nesting - 1, done))
+```
+
+然后，让我们的应用等待所有任务完成的技巧是提供给 `spider()` 函数一个特殊的回调，我们称它为 `done()`。
+`done()` 函数在一个 `spider` 任务完成时会递增一个计数器。
+当完成的下载数到达 `links` 数组的长度，最终回调被调用：
+
+```javascript
+function done(err) {
+  if (err) {
+    hasErrors = true
+    return cb(err)
+  }
+  if (++completed === links.length && !hasErrors) {
+    return cb()
+  }
+}
+```
+
+> `hasErrors` 变量是必须的，因为如果一个并行任务失败了，我们希望立即调用具有给定错误的回调。
+> 而且，我们需要确保其他可能正在运行的并行任务不会再次调用回调。
+
+有了这些更改，如果我们现在尝试对网页运行蜘蛛程序，我们将注意到整个过程的速度有了巨大提升，
+因为每次下载都将并行进行，而无需等待处理上一个链接。
+
 #### The pattern
 
 #### Fixing race conditions with concurrent tasks
