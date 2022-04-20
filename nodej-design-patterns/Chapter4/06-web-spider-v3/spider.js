@@ -37,7 +37,7 @@ function download(url, filename, cb) {
 
 
 export function spider(url, nesting, cb) {
-  const filename = urlToFilename(url)
+  const filename = 'download/' + urlToFilename(url)
   // 直接读取文件
   fs.readFile(filename, "utf8", (err, fileContent) => {
     if (err) {
