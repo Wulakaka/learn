@@ -157,7 +157,7 @@ export function spider(url, cb) {
 
 顺序执行一组任务意味着同一时间运行一个任务，一个接着一个。
 执行顺序必须保留，因为列表中任务的结果也许会影响后续的执行。
-![An example of sequential execution flow with three tasks](images/img.png)
+![An example of sequential execution flow with three tasks](images/4.1.png)
 这种流程有不同的变体：
 
 - 顺序执行一组已知的任务，在他们之间不需要传播数据。
@@ -360,7 +360,44 @@ _顺序迭代模式
 
 ### Parallel execution
 
+有些情况下顺序不重要，我们只是想在所有任务完成时被通知到。这种情况用并行执行模式会更好。
+![An example of parallel execution with three tasks](images/4.2.png)
+
+这可能听起来很奇怪，如果你考虑到 Node.js 是单线程的话，
+但是如果你记得我们在 _Chapter 1, The Node.js Platform_ 中讨论的内容的话，
+你会意识到即使只有一个线程，我们也可以实现并发，这得益于 Node.js 的非阻塞特性。
+事实上，并行这个词在这种情况并不合适，因为它并不意味着任务同时运行，而是由底层的、
+非阻塞API和事件循环的交错来执行的。
+
+正如你所知道的，当一个任务的请求一个新的异步操作时会把控制权交还给事件循环，
+从而允许事件循环执行另一个任务。用于这种流的正确词汇是并发，但是为了简单起见，我们仍然会使用并行。
+
+下图展示了两个异步任务在 Node.js 平台上是如何并行运行的。
+
+![An example of how asynchronous tasks run in parallel](images/4.3.png)
+
+在图中，我们有个**Main**函数执行两个异步任务：
+
+1. **Main**函数触发了**Task1**和**Task2**的执行。
+   由于他们触发了一个异步操作，他们立即把控制权返还给了**Main**函数，**Main**函数之后又把控制权返还给了事件循环。
+2. 当**Task1**的异步操作完成时，事件循环把控制权给了它。
+   当它也完成了内部的同步处理后，会通知**Main**函数。
+3. 当由**Task2**触发的异步操作完成时，事件循环调用它的回调，把控制权交还给**Task2**。
+   在**Task2**的最后，**Main**函数又一次被通知。
+   这时，**Main**函数知道**Task1**和**Task2**都已经完成，所以它可以继续执行或者返回操作的结果到其他回调。
+
+简单的来说，这意味在 Node.js 中，我们只可以并行处理异步操作，因为他们的并发是由内部的非阻塞API处理的。
+在 Node.js 里，同步（阻塞）操作无法并发运行，除非他们的执行与一个异步操作交替，或者与 `setTimeout()` 或 `setImmediate()` 交替。
+你会在*Chapter 11, Advanced Recipes*中看到更多细节。
+
 #### Web spider version 3
+
+我们的网络蜘蛛程序看起来是并行执行概念的完美候选人。
+目前为止，我们的应用程序以顺序的方式递归下载链接的网页。
+我们可以通过并行下载所有链接的网页的方式轻易地优化处理的性能。
+
+为此，我们只需要修改 `spiderLinks()` 函数来确保一次性生成所有的 `spider()` 任务，
+然后仅在所有任务都完成执行时调用最终回调。所以，让我们像下面这样修改 `spiderLinks()` ：
 
 #### The pattern
 
