@@ -1,4 +1,9 @@
-@forward "library" with(
-  $black: #777
+@forward "library" with (
+  $black: #777,
+  $colors: (
+    'black': (
+      'foo': pink,
+    )
+  )
 );
 

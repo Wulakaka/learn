@@ -1,1 +1,12 @@
+@use "sass:map";
+
 $black: #333 !default;
+
+// 这步是为了在使用with时可以被替换掉。配合map.deep-merge可以达到自定义的效果
+$colors: () !default;
+$colors: map.deep-merge((
+  'black': (
+    'foo': black,
+    'bar': white,
+  )
+), $colors);

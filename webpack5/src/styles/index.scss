@@ -3,5 +3,7 @@
 $body-color: red;
 
 body {
-  color: style.$black;
+  color: map-get(style.$colors, 'black', 'foo');
 }
+
+@debug map-get(style.$colors, 'black', 'bar');
