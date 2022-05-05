@@ -684,6 +684,196 @@ export class TaskQueue {
 }
 ```
 
+这个类的构造器只接受并发的限制数，另外，初始化了变量 `running` 和 `queue`。
+前者是一个计数器，用来追踪所有正在运行的任务，
+而后者是一个数组，用来存储所有pending状态的任务。
+
+`pushTask()` 方法简单地添加任务到queue中，然后通过异步调用 `this.next()` 来引导工作线程执行。
+注意到我们必须使用 `bind` ，因为如果不这样的话，当 `next` 函数被 `process.nextTick` 调用时会丢失上下文。
+
+`next()` 方法发起了队列中的一套任务，保证并发数不会超过限制。
+
+你可能注意到这个方法与 *Limiting concurrency* 一节中呈现的模式有些相似。
+他实际上在不超出并行限制的前提下开启了尽可能多的任务。
+当每个任务完成时，它更新了正在运行的任务的计数，并且通过再次异步调用 `next()` 调用开启了另一轮的任务。
+`TaskQueue` 类的一个有趣的属性是，它允许我们动态添加任务到队列中。
+另一个优点是，现在，我们有一个中央实体负责限制任务的并发，这些任务可以在函数执行的所有实例间共享。
+在我们的例子中，它是 `spider()` 函数，正如您稍后将看到的。
+
+##### Refining the TaskQueue
+
+前面对 `TaskQueue` 的实现是一个队列模型充分的例子，
+但是为了在实际项目中使用，它需要一些额外的特性。
+比如，当其中一个任务失败了，我们如何告知程序？
+我们如何知道所有队列中的任务已经完成？
+
+让我们带回一些在第三章 `Callbacks and Events` 中讨论的概念，
+然后一起吧 `TaskQueue` 转变为 `EventEmitter` ，以便我们可以触发事件来传播任务的失败和在队列已经为空时通知所有观察者。
+
+第一个改变是引入 `EventEmitter` 类，然后让 `TaskQueue` 继承它：
+
+```javascript
+import {EventEmitter} from 'events'
+
+export class TaskQueue extends EventEmitter {
+  constructor(concurrency) {
+    super()
+    // ...
+  }
+
+  // ...
+}
+```
+
+现在，我们可以使用 `this.emit` 从 `TaskQueue` `next()` 方法中触发事件：
+
+```javascript
+next()
+{
+  if (this.running === 0 && this.queue.length === 0) { // (1)
+    return this.emit('empty')
+  }
+  while (this.running < this.concurrency && this.queue.length) {
+    const task = this.queue.shift()
+    task((err) => {                                   // (2)
+      if (err) {
+        this.emit('error', err)
+      }
+      this.runing--
+      process.nextTick(this.next.bind(this))
+    })
+    this.running++
+  }
+}
+```
+
+与之前相比，有两处新增的内容：
+
+- 每次 `next()` 函数被调用，我们检查是否没有正在运行的任务和队列是否为空。
+  这种情况下，意味着队列已经为空并且我们可以发出 `empty` 事件。
+- 每个任务的完成回调现在可以通过传递错误来调用。我们检查错误是否真的被传递，
+  表明任务已经失败，并且在这种情况下，我们用 `error` 事件传播错误。
+
+请注意，如果出现错误，我们有意让队列保持运行。
+我们没有停止其他进程中的任务，也没有移除任何等待状态的任务。
+这在基于队列的系统中很常见。
+预计会发生错误，而不是让系统在这些情况下崩溃，通常较好的做法是区分错误并且思考重试或恢复的策略。
+我们将在13章 `Messageing and Integration patterns` 更多的讨论这些概念。
+
+##### Web spider version 4
+
+既然我们已经有一个通用的队列，可以在受限的平行工作流中执行任务，那就直接使用它来重构我们的爬虫程序。
+
+我们将使用一个 `TaskQueue` 的实例作为堆积工作任务的地方，每个我们想爬取的URL都会作为一个任务被添加到队列中。
+开始的 URL 将会被添加为第一个任务，然后所有在爬取过程中发现的URL也会被添加。
+队列将会帮助我们管理，
+并且确保进程中的任何时间的任务数（正在下载的页面数或文件系统的读操作数）永远不会多于 `TaskQueue` 实例配置的限制数。
+
+我们已经在 `spider()` 函数中定义了爬取一个给定URL的逻辑。
+现在可以考虑将它变为通用的爬取任务。
+为了更清楚的说明，最好的方式是重命名它为 `spiderTask` ：
+
+```javascript
+function spiderTask(url, nesting, queue, cb) { // (1)
+  const filename = urlToFilename(url)
+  fs.readFile(filename, 'utf8', (err, fileContent) => {
+    if (err) {
+      if (err.code !== 'ENOENT') {
+        return cb(err)
+      }
+      return download(url, filename, (err, requestContent) => {
+        if (err) {
+          return cb(err)
+        }
+        spiderLinks(url, requestContent, nesting, queue) // (2)
+        return cb()
+      })
+    }
+    spiderLinks(url, fileContent, nesting, queue) // (3)
+    return cb()
+  })
+}
+```
+
+除了重命名了函数，你可能也注意到我们应用了一些小的变更：
+
+- 函数注册现在接受一个新的参数 `queue` 。它是一个 `TaskQueue` 的实例，我们需要携带它来让他可以在必要的时候添加新任务。
+- 负责添加新爬取链接的是 `spiderLinks` 函数，所以我们需要在下载完一个页面后调用这个函数的时候，确保传递队列实例。
+- 在一个已被下载过的文件中调用 `spiderLinks` 时，也需要传递队列实例。
+
+让我们重新看一下 `spiderLinks()` 函数。
+由于它不再需要追踪任务的完成，现在可以极大的被简化，因为这个任务交给了队列。
+它现在执行的实际上是同步操作，它只需要调用新的 `spider()` 函数（即将要定义的）来将任务添加到队列中，针对每个被发现的链接。
+
+```javascript
+function spiderLinks(currentUrl, body, nesting, queue) {
+  if (nesting === 0) {
+    return
+  }
+  const links = getPageLinks(currentUrl, body)
+  if (links.length === 0) {
+    return
+  }
+  links.forEach(link => spider(link, nesting - 1, queue))
+}
+```
+
+现在重新看一下 `spider()` 函数，它需要充当第一个URL的入口点，它也会被用来添加每个新URL到队列中：
+
+```javascript
+const spidering = new Set() // (1)
+export function spider(url, nesting, queue) {
+  if (spidering.has(url)) {
+    return
+  }
+  spidering.add(url)
+  queue.pushTask((done) => { // (2)
+    spiderTask(url, nesting, queue, done)
+  })
+}
+```
+
+正如你所看到的，这个函数现在有两个主要的职责：
+
+1. 它通过 `spidering` 这个集合，来记录已经访问过或正在处理的URL。
+2. 它添加新的任务到 `queue`。一旦完成，这个任务会调用 `spiderTask()` 函数，有效地开启指定URL的爬取。
+
+最后，我们可以更新 `spider-cli.js` 脚本，它允许我们从命令行调用爬虫程序：
+
+```javascript
+import {spider} from './spider.js'
+import {TaskQueue}
+
+form
+'./TaskQueue.js'
+const url = process.argv[2]                                      // (1)
+const nesting = Number.parseInt(process.argv[3], 10) || 1
+cosnt
+concurrency = Number.parseInt(process.argv[4], 10) || 2
+const spiderQueue = new TaskQueue(concurrency)                   // (2)
+spiderQueue.on('error', console.err)
+spiderQueue.on('empty', () => console.log('Download complete'))
+spider(url, nesting, spiderQueue)                                // (3)
+```
+
+这个脚本现在由三个主要部分组成：
+
+1. CLI 参数解析。请注意脚本现在接受的第三个参数，它可以用来自定义并行的层级。
+2. 一个 `TaskQueue` 对象被创建，并且监听器附加到 `error` 和 `empty` 事件上。
+   当发生错误，我们简单的打印他。当队列为空，这也意味着我们完成了网站的爬取。
+3. 最后，我们通过调用 `spider` 函数，开始爬取过程。
+
+应用这些更改后，我们可以尝试再一次运行爬虫模块。当我们运行如下命令：
+
+```
+node spider-cli.js https://loige.co 1 4
+```
+
+我们可以注意到在同一时间不会再有超过4个下载。
+
+通过最后一个例子，我们可以概括基于回调的模式。
+在下一节中，我们会看到一个流行库，它提供了这些模式和许多其他异步工具的可用于生产环境的实现。
+
 ## The async library
 
 ## Summary
