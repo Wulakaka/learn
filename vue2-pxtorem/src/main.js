@@ -1,6 +1,7 @@
 import Vue from "vue";
 import App from "./App.vue";
-
+import TslTable from "@leano_z/table/src";
+Vue.use(TslTable);
 Vue.config.productionTip = false;
 
 new Vue({
