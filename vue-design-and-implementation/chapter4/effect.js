@@ -1,29 +1,13 @@
-// 用一个全局变量存储被注册的副作用函数
-let activeEffect
+
 
 // 存储副作用函数的桶
 const bucket = new WeakMap()
 
-// 原始数据
-const data = {text: 'hello world', ok: true}
-// 对原始数据的代理
-const obj = new Proxy(data, {
-//  拦截读取操作
-  get(target, p, receiver) {
-    console.log('get', p)
-    track(target, p)
-    // 返回属性值
-    return target[p]
-  },
-  // 拦截设置操作
-  set(target, p, value, receiver) {
-    console.log('set', p)
-    // 设置属性值
-    target[p] = value
-    // 把副作用函数从桶里取出来并执行
-    trigger(target, p)
-  }
-})
+// 用一个全局变量存储被注册的副作用函数
+let activeEffect
+
+// 使用栈结构存储副作用函数
+const effectStack = []
 
 // effect 函数用于注册副作用函数
 function effect(fn) {
@@ -33,7 +17,12 @@ function effect(fn) {
     cleanup(effectFn)
     // 当 effectFn 执行时，将其设置为当前激活的副作用函数
     activeEffect = effectFn
+    // 在调用副作用函数之前将当前副作用函数压入栈中
+    effectStack.push(effectFn)
     fn()
+    // 在当前副作用函数执行完毕后，将当前副作用函数弹出栈，并把 activeEffect 还原为之前的值
+    effectStack.pop()
+    activeEffect = effectStack[effectStack.length-1]
   }
   // activeEffect.deps 用来存储所有与该副作用函数相关联的依赖集合（哪个集合里包含了该副作用函数）
   // 相当于存储了当前函数的父关系
@@ -85,7 +74,14 @@ function trigger(target, key) {
 
   // 避免无限循环
   // 执行副作用函数
-  const effectsToRun = new Set(effects)
+  const effectsToRun = new Set()
+  effects && effects.forEach(effectFn => {
+    // 如果 trigger 触发执行的副作用函数与当前正在执行的副作用函数相同，则不触发执行
+    // 避免在同一个副作用函数中既有 get 又有 set 时触发无限循环
+    if (effectFn !== activeEffect) {
+      effectsToRun.add(effectFn)
+    }
+  })
   effectsToRun.forEach(fn => fn())
 }
 
