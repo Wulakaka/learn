@@ -4,6 +4,9 @@ const pxtorem = require("postcss-pxtorem");
 module.exports = {
   css: {
     loaderOptions: {
+      sass: {
+        prependData: `@import "~@/styles/element-variables.scss";`,
+      },
       postcss: {
         plugins: [
           autoprefixer(),
