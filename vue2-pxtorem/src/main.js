@@ -1,6 +1,7 @@
 import Vue from "vue";
 import App from "./App.vue";
-import TslTable from "@leano_z/table/src";
+import TslTable from '@tslsmart/bigscreen-table'
+import '@tslsmart/bigscreen-table/lib/tsl-table.css'
 Vue.use(TslTable);
 Vue.config.productionTip = false;
 
