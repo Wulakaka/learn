@@ -1,5 +1,5 @@
 const autoprefixer = require("autoprefixer");
-const pxtorem = require("postcss-pxtorem");
+// const pxtorem = require("postcss-pxtorem");
 
 module.exports = {
   css: {
@@ -11,13 +11,15 @@ module.exports = {
       //   prependData: `@import "~@/styles/element-variables.scss";`,
       // },
       postcss: {
-        plugins: [
-          autoprefixer(),
-          // pxtorem({
-          //   rootValue: 16,
-          //   propList: ["*"],
-          // }),
-        ],
+        postcssOptions: {
+          plugins: [
+            autoprefixer(),
+            // pxtorem({
+            //   rootValue: 16,
+            //   propList: ["*"],
+            // }),
+          ],
+        },
       },
     },
   },
