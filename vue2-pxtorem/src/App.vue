@@ -2,18 +2,19 @@
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png" />
     <HelloWorld msg="Welcome to Your Vue.js App" />
-    <TestTable></TestTable>
+    <ElementPreview></ElementPreview>
   </div>
 </template>
 
 <script>
 import HelloWorld from "./components/HelloWorld.vue";
-import TestTable from "./components/TestTable";
+import ElementPreview from "@/components/ElementPreview";
+
 export default {
   name: "App",
   components: {
     HelloWorld,
-    TestTable,
+    ElementPreview,
   },
 };
 </script>

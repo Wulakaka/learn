@@ -3,23 +3,7 @@
     <TslTable :data="tableList" tsl theme="dark" height="400" stripe>
       <TslTableColumn type="selection" fixed />
       <TslTableColumn type="index" />
-      <TslTableColumn prop="name" label="姓名" type="img" />
-      <TslTableColumn
-        prop="age"
-        label="年龄"
-        sortable
-        :filters="testFilter"
-        :filter-method="() => {}"
-      />
-      <TslTableColumn prop="name" label="姓名" />
-      <TslTableColumn prop="age" label="年龄" />
-      <TslTableColumn prop="name" label="姓名" />
-      <TslTableColumn prop="age" label="年龄" fixed="right" />
-    </TslTable>
-    <TslTable stripe :data="tableList" theme="light" height="400" border>
-      <TslTableColumn type="selection" fixed />
-      <TslTableColumn type="index" />
-      <TslTableColumn prop="name" label="姓名" type="img" />
+      <TslTableColumn prop="name" label="姓名" show-overflow-tooltip />
       <TslTableColumn
         prop="age"
         label="年龄"
@@ -41,7 +25,7 @@ export default {
   data() {
     return {
       tableList: [
-        { name: "张三", age: 18 },
+        { name: "的说法是法师法萨芬水电费水电费是地方撒放地方撒发", age: 18 },
         { name: "张三1", age: 18 },
         { name: "张三2", age: 18 },
         { name: "张三3", age: 18 },
